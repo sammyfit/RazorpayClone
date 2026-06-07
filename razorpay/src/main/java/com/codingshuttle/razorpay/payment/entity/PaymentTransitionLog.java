@@ -1,10 +1,9 @@
-package com.codingshuttle.razorpay.payment;
+package com.codingshuttle.razorpay.payment.entity;
 
 import com.codingshuttle.razorpay.common.enums.PaymentEvent;
 import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import jakarta.persistence.*;
 
-import javax.annotation.processing.Generated;
 import java.time.LocalDateTime;
 import java.util.UUID;
 

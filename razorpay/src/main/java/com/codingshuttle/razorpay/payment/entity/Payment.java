@@ -1,4 +1,4 @@
-package com.codingshuttle.razorpay.payment;
+package com.codingshuttle.razorpay.payment.entity;
 
 import com.codingshuttle.razorpay.common.entity.Money;
 import com.codingshuttle.razorpay.common.enums.PaymentMethod;
@@ -6,7 +6,6 @@ import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.Map;
