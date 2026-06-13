@@ -4,6 +4,7 @@ import com.codingshuttle.razorpay.merchant.dto.request.CreateApiKeyRequest;
 import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyCreateResponse;
 import com.codingshuttle.razorpay.merchant.service.ApiKeyService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/mechants/{merchantId}/api-keys")
+@RequiredArgsConstructor
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;
