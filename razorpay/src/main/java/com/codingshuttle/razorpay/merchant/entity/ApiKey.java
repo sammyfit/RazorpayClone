@@ -2,6 +2,7 @@ package com.codingshuttle.razorpay.merchant.entity;
 
 import com.codingshuttle.razorpay.common.enums.Environment;
 import jakarta.persistence.*;
+import lombok.*;
 import org.springframework.cglib.core.Local;
 
 import javax.annotation.processing.Generated;
@@ -10,6 +11,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "api_key")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class ApiKey {
 
     @Id
@@ -31,7 +37,8 @@ public class ApiKey {
     private Environment environment;
 
     @Column(nullable = false)
-    private boolean enabled;
+    @Builder.Default
+    private boolean enabled = true;
 
     private LocalDateTime lastUsedAt;
     private LocalDateTime rotatedAt;
