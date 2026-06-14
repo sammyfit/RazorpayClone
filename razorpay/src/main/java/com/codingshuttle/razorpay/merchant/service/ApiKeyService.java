@@ -4,6 +4,7 @@ import com.codingshuttle.razorpay.merchant.dto.request.CreateApiKeyRequest;
 import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyCreateResponse;
 import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyResponse;
 import com.codingshuttle.razorpay.merchant.entity.ApiKey;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,4 +18,6 @@ public interface ApiKeyService {
     List<ApiKeyResponse> listByMerchant(UUID merchantId);
 
     void revoke(UUID merchantId, UUID keyId);
+
+    @Nullable ApiKeyCreateResponse rotate(UUID merchantId, UUID keyId);
 }

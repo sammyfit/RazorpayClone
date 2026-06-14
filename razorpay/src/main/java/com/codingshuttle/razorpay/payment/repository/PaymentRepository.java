@@ -1,4 +1,9 @@
 package com.codingshuttle.razorpay.payment.repository;
 
-public class PaymentRepository {
+import com.codingshuttle.razorpay.payment.entity.Payment;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 }
