@@ -30,6 +30,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
 
     @Override
+    @Transactional
     public ApiKeyCreateResponse create(UUID merchantId, CreateApiKeyRequest request) {
         Merchant merchant = merchantRepository.findById(merchantId).orElseThrow(() -> new ResourceNotFoundException("merchant", merchantId));
 
@@ -50,7 +51,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
     @Override
     public List<ApiKeyResponse> listByMerchant(UUID merchantId) {
-        return apiKeyRepository.findByMerchant_id(merchantId)
+        return apiKeyRepository.findByMerchant_Id(merchantId)
                 .stream()
                 .map(apiKey ->
                         new ApiKeyResponse(
