@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.merchant.service.impl;
 
+import com.codingshuttle.razorpay.common.exception.BusinessRuleViolationException;
 import com.codingshuttle.razorpay.common.exception.ResourceNotFoundException;
 import com.codingshuttle.razorpay.common.util.RandomizerUtil;
 import com.codingshuttle.razorpay.merchant.dto.request.CreateApiKeyRequest;
@@ -7,6 +8,7 @@ import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyCreateResponse;
 import com.codingshuttle.razorpay.merchant.dto.response.ApiKeyResponse;
 import com.codingshuttle.razorpay.merchant.entity.ApiKey;
 import com.codingshuttle.razorpay.merchant.entity.Merchant;
+import com.codingshuttle.razorpay.merchant.mapper.ApiKeyMapper;
 import com.codingshuttle.razorpay.merchant.repository.ApiKeyRepository;
 import com.codingshuttle.razorpay.merchant.repository.MerchantRepository;
 import com.codingshuttle.razorpay.merchant.service.ApiKeyService;
@@ -25,22 +27,24 @@ import java.util.UUID;
 @Slf4j
 @Transactional(readOnly = true)
 public class ApiKeyServiceImpl implements ApiKeyService {
+
     private final ApiKeyRepository apiKeyRepository;
     private final MerchantRepository merchantRepository;
-
+    private final ApiKeyMapper apiKeyMapper;
 
     @Override
     @Transactional
     public ApiKeyCreateResponse create(UUID merchantId, CreateApiKeyRequest request) {
-        Merchant merchant = merchantRepository.findById(merchantId).orElseThrow(() -> new ResourceNotFoundException("merchant", merchantId));
+        Merchant merchant = merchantRepository.findById(merchantId)
+                .orElseThrow(() -> new ResourceNotFoundException("merchant", merchantId));
 
-        String keyId = "rzp_" + request.environment().name().toUpperCase()+ "_" +RandomizerUtil.randomBase64(24);
+        String keyId = "rzp_" + request.environment().name().toLowerCase() + "_" + RandomizerUtil.randomBase64(24);
         String rawSecret = RandomizerUtil.randomBase64(40);
 
         ApiKey apiKey = ApiKey.builder()
                 .merchant(merchant)
                 .keyId(keyId)
-                .keySecretHash(rawSecret)
+                .keySecretHash(rawSecret) // TODO: encode with BCryptPasswordEncoder
                 .environment(request.environment())
                 .build();
 
@@ -51,16 +55,7 @@ public class ApiKeyServiceImpl implements ApiKeyService {
 
     @Override
     public List<ApiKeyResponse> listByMerchant(UUID merchantId) {
-        return apiKeyRepository.findByMerchant_Id(merchantId)
-                .stream()
-                .map(apiKey ->
-                        new ApiKeyResponse(
-                        apiKey.getId(),
-                        apiKey.getKeyId(),
-                        apiKey.getEnvironment(),
-                        apiKey.isEnabled(),
-                        apiKey.getLastUsedAt(), null))
-                .toList();
+        return apiKeyMapper.toResponseList(apiKeyRepository.findByMerchant_Id(merchantId));
     }
 
     @Override
@@ -76,18 +71,21 @@ public class ApiKeyServiceImpl implements ApiKeyService {
     @Override
     @Transactional
     public @Nullable ApiKeyCreateResponse rotate(UUID merchantId, UUID keyId) {
-        ApiKey apikey = apiKeyRepository.findById(keyId)
+        ApiKey apiKey = apiKeyRepository.findById(keyId)
                 .filter(k -> k.getMerchant().getId().equals(merchantId))
                 .orElseThrow(() -> new ResourceNotFoundException("ApiKey", keyId));
 
+        if (!apiKey.isEnabled()) {
+            throw new BusinessRuleViolationException("API_KEY_DISABLED", "Cannot rotate a disabled key");
+        }
+
         String newRawSecret = RandomizerUtil.randomBase64(40);
-        apikey.setPreviousKeySecretHash(apikey.getPreviousKeySecretHash());
-        apikey.setKeySecretHash(newRawSecret);
-        apikey.setRotatedAt(LocalDateTime.now());
-        apikey.setGracePeriodExpiresAt(LocalDateTime.now().plusHours(24));
+        apiKey.setPreviousKeySecretHash(apiKey.getKeySecretHash());
+        apiKey.setKeySecretHash(newRawSecret); // TODO: encode with BCryptPasswordEncoder
+        apiKey.setRotatedAt(LocalDateTime.now());
+        apiKey.setGracePeriodExpiresAt(LocalDateTime.now().plusHours(24));
+        apiKey = apiKeyRepository.save(apiKey);
 
-        apikey= apiKeyRepository.save(apikey);
-
-        return new ApiKeyCreateResponse(apikey.getId(), apikey.getKeyId(), newRawSecret, apikey.getEnvironment());
+        return new ApiKeyCreateResponse(apiKey.getId(), apiKey.getKeyId(), newRawSecret, apiKey.getEnvironment());
     }
 }

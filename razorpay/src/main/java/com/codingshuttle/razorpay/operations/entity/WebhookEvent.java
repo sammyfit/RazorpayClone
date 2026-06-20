@@ -1,6 +1,7 @@
 package com.codingshuttle.razorpay.operations.entity;
 
-import com.codingshuttle.razorpay.common.enums.WebHookEventStatus;
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
+import com.codingshuttle.razorpay.common.enums.WebhookEventStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -11,7 +12,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "webhook_event")
-public class WebhookEvent {
+public class WebhookEvent extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -34,7 +36,7 @@ public class WebhookEvent {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    private WebHookEventStatus webHookEventStatus;
+    private WebhookEventStatus status;
 
     @Column(nullable = false)
     private Integer attempts = 0;

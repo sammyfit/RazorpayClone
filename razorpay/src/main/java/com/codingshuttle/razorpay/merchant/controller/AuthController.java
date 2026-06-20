@@ -2,7 +2,6 @@ package com.codingshuttle.razorpay.merchant.controller;
 
 import com.codingshuttle.razorpay.merchant.dto.request.MerchantSignupRequest;
 import com.codingshuttle.razorpay.merchant.dto.response.MerchantResponse;
-import com.codingshuttle.razorpay.merchant.entity.Merchant;
 import com.codingshuttle.razorpay.merchant.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,7 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("signup")
+    @PostMapping("/signup")
     public ResponseEntity<MerchantResponse> signup(@RequestBody @Valid MerchantSignupRequest request){
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 authService.signup(request)

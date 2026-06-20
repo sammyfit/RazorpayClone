@@ -31,8 +31,8 @@ public class Money {
     }
 
     public Money subtract(Money other) {
-        if(!this.currency.equals(other.currency)){
-            throw new IllegalArgumentException("Cannot add money with different currencies");
+        if (!this.currency.equals(other.currency)) {
+            throw new IllegalArgumentException("Cannot subtract Money with different currencies");
         }
         return new Money(this.amountUnits - other.amountUnits, this.currency);
     }

@@ -1,5 +1,6 @@
 package com.codingshuttle.razorpay.vault.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -7,7 +8,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "vault_card")
-public class VaultCard {
+public class VaultCard extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
@@ -16,16 +18,16 @@ public class VaultCard {
     private String lastFour;
 
     @Column(nullable = false, length = 6)
-    private String bin; //First 6 digits of the Card
+    private String bin;
 
     @Column(nullable = false)
-    private byte[] encryptedPan; //Encrypt the PAN
+    private byte[] encryptedPan;
 
     @Column(nullable = false)
     private byte[] encryptedDek;
 
     @Column(nullable = false)
-    private String brand; //Brand : RUPAY, VISA, MASTERCARD
+    private String brand;
 
     @Column(nullable = false)
     private String expiryMonth;

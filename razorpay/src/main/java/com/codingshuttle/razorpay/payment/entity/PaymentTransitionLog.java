@@ -1,15 +1,25 @@
 package com.codingshuttle.razorpay.payment.entity;
 
+import com.codingshuttle.razorpay.common.entity.BaseEntity;
+import com.codingshuttle.razorpay.common.enums.PaymentActor;
 import com.codingshuttle.razorpay.common.enums.PaymentEvent;
 import com.codingshuttle.razorpay.common.enums.PaymentStatus;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "payment_transition_log")
-public class PaymentTransitionLog {
+@Table(name = "payment_transition_log", indexes = {
+        @Index(name = "idx_payment_transition_log_payment_id", columnList = "payment_id")
+})
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class PaymentTransitionLog extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -31,8 +41,9 @@ public class PaymentTransitionLog {
     @Column(name = "to_status", nullable = false, length = 30)
     private PaymentStatus toStatus;
 
-    @Column(name = "actor", length = 100)
-    private String actor;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "actor", length = 30)
+    private PaymentActor actor;
 
     @Column(name = "occurred_at", nullable = false)
     private LocalDateTime occurredAt;

@@ -7,6 +7,7 @@ import com.codingshuttle.razorpay.merchant.dto.request.MerchantSignupRequest;
 import com.codingshuttle.razorpay.merchant.dto.response.MerchantResponse;
 import com.codingshuttle.razorpay.merchant.entity.AppUser;
 import com.codingshuttle.razorpay.merchant.entity.Merchant;
+import com.codingshuttle.razorpay.merchant.mapper.MerchantMapper;
 import com.codingshuttle.razorpay.merchant.repository.AppUserRepository;
 import com.codingshuttle.razorpay.merchant.repository.MerchantRepository;
 import com.codingshuttle.razorpay.merchant.service.AuthService;
@@ -22,40 +23,28 @@ public class AuthServiceImpl implements AuthService {
 
     private final AppUserRepository appUserRepository;
     private final MerchantRepository merchantRepository;
+    private final MerchantMapper merchantMapper;
 
     @Override
     @Transactional
     public MerchantResponse signup(MerchantSignupRequest request) {
-        if(merchantRepository.existsByEmail(request.email())) {
-            throw new DuplicateResourceException("DUPLICATE_MERCHANT","Merchant with email already exists: " + request.email());
+        if (merchantRepository.existsByEmail(request.email())) {
+            throw new DuplicateResourceException("DUPLICATE_MERCHANT_EMAIL",
+                    "Merchant with email already exists: " + request.email());
         }
 
-        Merchant merchant = Merchant.builder()
-                .businessName(request.businessName())
-                .businessType(request.businessType())
-                .name(request.name())
-                .email(request.email())
-                .merchantStatus(MerchantStatus.PENDING_KYC)
-                .build();
-
+        Merchant merchant = merchantMapper.toEntityFromSignUpRequest(request);
+        merchant.setMerchantStatus(MerchantStatus.PENDING_KYC);
         merchant = merchantRepository.save(merchant);
 
         AppUser appUser = AppUser.builder()
                 .email(request.email())
                 .merchant(merchant)
-                .passwordHash(request.password())
+                .passwordHash(request.password()) // TODO: encrypt using BCrypt
                 .role(UserRole.OWNER)
                 .build();
-
         appUserRepository.save(appUser);
 
-        return new MerchantResponse(
-                merchant.getId(),
-                merchant.getName(),
-                merchant.getEmail(),
-                merchant.getBusinessName(),
-                merchant.getBusinessType(),
-                merchant.getMerchantStatus()
-        );
+        return merchantMapper.toResponse(merchant);
     }
 }
